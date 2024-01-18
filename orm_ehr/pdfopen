@@ -1,0 +1,29 @@
+import sqlite3
+import fitz
+
+def display_pdf_data(database_file, ehr_id):
+    conn = sqlite3.connect(database_file)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT file FROM Documents WHERE ehr_id = ?", (ehr_id,))
+    blob_data = cursor.fetchone()
+
+    conn.close()
+
+    if blob_data:
+        pdf_document = fitz.open("pdf", blob_data[0])
+
+        for page_number in range(pdf_document.page_count):
+            page = pdf_document.load_page(page_number)
+            text = page.get_text()
+            print(f"Page {page_number + 1}:\n{text}\n")
+
+        pdf_document.close()
+    else:
+        print(f"No data found for ehr_id: {ehr_id}.")
+
+database_file = "C:\Users\tanma\OneDrive\Desktop\EHR\sampEHR.db"
+ehr_id_to_retrieve = 1
+
+display_pdf_data(database_file, ehr_id_to_retrieve)
+
